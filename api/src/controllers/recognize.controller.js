@@ -58,15 +58,15 @@ module.exports.start = async (req, res) => {
     if (event.type === 'frigate') {
       const { type: frigateEventType, topic } = req.body;
       const attributes = req.body.after ? req.body.after : req.body.before;
-      const { id, label, camera, area, current_zones: zones } = attributes;
-      event = { id, label, camera, area, zones, frigateEventType, topic, ...event };
+      const { id, label, camera, area, current_zones: zones, entered_zones: enteredZones} = attributes;
+      event = { id, label, camera, area, zones, enteredZones, frigateEventType, topic, ...event };
     } else {
       const { url, camera } = req.query;
 
-      event = { id: uuidv4(), url, camera, zones: [], ...event };
+      event = { id: uuidv4(), url, camera, zones: [], enteredZones: [], ...event };
     }
 
-    const { id, camera, zones, url } = event;
+    const { id, camera, zones, enteredZones, url } = event;
     const { break: breakMatch, results: resultsOutput, attempts: manualAttempts } = event.options;
 
     if (!DETECTORS.length) return res.status(BAD_REQUEST).error('no detectors configured');
@@ -160,6 +160,7 @@ module.exports.start = async (req, res) => {
       attempts,
       camera,
       zones,
+      enteredZones,
       counts,
       matches: best,
       misses,
